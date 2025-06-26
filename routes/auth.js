@@ -18,8 +18,16 @@ con.connect((err) => {
   console.log("database connected successfully");
 });
 
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  } else {
+    res.redirect("/");
+  }
+}
+
 router.get("/", (req, res) => {
-  res.render("index");
+  res.render("index", { isValid: false, message: "", username: "" });
 });
 
 router.post("/login", (req, res) => {
@@ -29,9 +37,10 @@ router.post("/login", (req, res) => {
   con.query(query, [username, password], (error, result) => {
     if (error) return res.status(500).send("Database error");
     if (result.length > 0) {
-      res.send("Login successful");
+      req.session.user = result[0];
+      res.redirect("/dashboard");
     } else {
-      res.send("Invalid username or password");
+      res.redirect("/?error=Invalid credentials");
     }
   });
 });
@@ -57,6 +66,40 @@ router.post("/add/user", (req, res) => {
       res.redirect("/");
     }
   );
+});
+
+router.get("/dashboard", isAuthenticated, (req, res) => {
+  
+  const userData = {
+    name: req.session.user.name,
+  };
+  
+  const query = "SELECT * FROM contacts";
+  con.query(query, (err, contacts) => {
+    if (err) return res.status(500).send("Database error");
+    res.render("index", {
+      isValid: true,
+      user: userData,
+      contacts,
+      username: "",
+    });
+  });
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
+});
+
+router.post("/add/contact", isAuthenticated, (req, res) => {
+  const { name, email = "", phone } = req.body;
+  const query = "INSERT INTO contacts(name, email, phone) VALUES (?, ?, ?)";
+
+  con.query(query, [name, email, phone], (err) => {
+    if (err) return res.status(500).send("Error adding contact");
+    res.redirect("/dashboard");
+  });
 });
 
 module.exports = router;
