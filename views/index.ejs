@@ -11,10 +11,12 @@
     <title>Contact Book</title>
   </head>
   <body>
-    <%- include('partials/header') %> <% if(isValid){ %> <%-
-    include('partials/dashboard', {user, contacts}) %> <% } else {%> <%-
-    include('partials/login') %> <% } %> <%- include('partials/footer',
-    {username: username}) %>
+    <% if(isValid){ %> 
+      <%- include('partials/header', {showMenu: true}) %> 
+      <%- include('partials/dashboard', {user, contacts}) %> <% } else {%> 
+      <%- include('partials/header', {showMenu: false}) %> 
+    <%- include('partials/login') %> <% } %> <%- include('partials/footer',
+    {username}) %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
   </body>

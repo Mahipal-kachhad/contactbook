@@ -69,19 +69,19 @@ router.post("/add/user", (req, res) => {
 });
 
 router.get("/dashboard", isAuthenticated, (req, res) => {
-  
   const userData = {
     name: req.session.user.name,
   };
-  
-  const query = "SELECT * FROM contacts";
-  con.query(query, (err, contacts) => {
+  const userid = req.session.user.id;
+
+  const query = "SELECT * FROM contacts where userid = ?";
+  con.query(query, [userid], (err, contacts) => {
     if (err) return res.status(500).send("Database error");
     res.render("index", {
       isValid: true,
       user: userData,
       contacts,
-      username: "",
+      username: req.session.user.username,
     });
   });
 });
@@ -92,11 +92,18 @@ router.get("/logout", (req, res) => {
   });
 });
 
+router.get("/add-contact", (req, res) => {
+  res.render("addContact");
+});
+
 router.post("/add/contact", isAuthenticated, (req, res) => {
   const { name, email = "", phone } = req.body;
-  const query = "INSERT INTO contacts(name, email, phone) VALUES (?, ?, ?)";
+  const userid = req.session.user.id;
 
-  con.query(query, [name, email, phone], (err) => {
+  const query =
+    "INSERT INTO contacts(userid, name, email, phone) VALUES (?, ?, ?, ?)";
+
+  con.query(query, [userid, name, email, phone], (err) => {
     if (err) return res.status(500).send("Error adding contact");
     res.redirect("/dashboard");
   });
