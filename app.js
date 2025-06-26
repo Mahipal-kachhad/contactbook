@@ -12,6 +12,6 @@ app.use(express.urlencoded({ extended: true }));
 const authRoutes = require("./routes/auth");
 app.use("/", authRoutes);
 
-app.listen(port, () => {
+app.listen(port, () => { 
   console.log(`server running on http://${process.env.DB_HOST}:${port}`);
 });
