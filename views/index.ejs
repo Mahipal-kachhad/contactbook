@@ -13,7 +13,7 @@
   <body>
     <% if(isValid){ %> 
       <%- include('partials/header', {showMenu: true}) %> 
-      <%- include('partials/dashboard', {user, contacts}) %> <% } else {%> 
+      <%- include('partials/dashboard', {user, contacts, editingId}) %> <% } else {%> 
       <%- include('partials/header', {showMenu: false}) %> 
     <%- include('partials/login') %> <% } %> <%- include('partials/footer',
     {username}) %>

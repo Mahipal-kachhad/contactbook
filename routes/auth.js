@@ -73,6 +73,8 @@ router.get("/dashboard", isAuthenticated, (req, res) => {
     name: req.session.user.name,
   };
   const userid = req.session.user.id;
+  const editingId = parseInt(req.query.edit);
+
 
   const query = "SELECT * FROM contacts where userid = ?";
   con.query(query, [userid], (err, contacts) => {
@@ -82,6 +84,7 @@ router.get("/dashboard", isAuthenticated, (req, res) => {
       user: userData,
       contacts,
       username: req.session.user.username,
+      editingId: editingId || null
     });
   });
 });
@@ -108,5 +111,55 @@ router.post("/add/contact", isAuthenticated, (req, res) => {
     res.redirect("/dashboard");
   });
 });
+
+router.get("/delete/contact/:id", (req, res) => {
+  const id = req.params.id;
+  const query = "delete from contacts where id = ?";
+  con.query(query, [id], (err) => {
+    if (err) console.log("database err" + err);
+    res.redirect("/dashboard");
+  });
+});
+
+router.post("/update/contact/:id", isAuthenticated, (req, res) => {
+  const contactId = req.params.id;
+  const { name, email = "", phone } = req.body;
+  const query = "UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ? AND userid = ?";
+
+  con.query(query, [name, email, phone, contactId, req.session.user.id], (err) => {
+    if (err) return res.status(500).send("Error updating contact");
+    res.redirect("/dashboard");
+  });
+});
+
+router.get("/account", isAuthenticated, (req, res) => {
+  res.render("manageAccount", { user: req.session.user });
+});
+
+router.post("/update-account", isAuthenticated, (req, res) => {
+  const { name, email, phone, password } = req.body;
+  const userId = req.session.user.id;
+
+  let query, params;
+  if (password) {
+    query = "UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE id = ?";
+    params = [name, email, phone, password, userId];
+  } else {
+    query = "UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?";
+    params = [name, email, phone, userId];
+  }
+
+  con.query(query, params, (err) => {
+    if (err) return res.status(500).send("Error updating account");
+
+    req.session.user.name = name;
+    req.session.user.email = email;
+    req.session.user.phone = phone;
+    if (password) req.session.user.password = password;
+
+    res.redirect("/account");
+  });
+});
+
 
 module.exports = router;

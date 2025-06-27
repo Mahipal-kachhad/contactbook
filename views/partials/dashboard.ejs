@@ -1,6 +1,4 @@
 <div class="container py-4">
-  
-
   <main>
     <div class="card shadow-sm mb-4">
       <div class="card-body p-4">
@@ -27,17 +25,65 @@
               </tr>
             </thead>
             <tbody>
-              <% contacts.forEach(contact => { %>
+              <% contacts.forEach(contact => { %> <% if (editingId ===
+              contact.id) { %>
+              <tr>
+                <form action="/update/contact/<%= contact.id %>" method="POST">
+                  <td>
+                    <input
+                      type="text"
+                      name="name"
+                      value="<%= contact.name %>"
+                      class="form-control"
+                      required
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="email"
+                      name="email"
+                      value="<%= contact.email %>"
+                      class="form-control"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="phone"
+                      value="<%= contact.phone %>"
+                      class="form-control"
+                      required
+                    />
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-success btn-sm">
+                      Save
+                    </button>
+                    <a href="/dashboard" class="btn btn-secondary btn-sm"
+                      >Cancel</a
+                    >
+                  </td>
+                </form>
+              </tr>
+              <% } else { %>
               <tr>
                 <td><%= contact.name %></td>
                 <td><%= contact.email %></td>
                 <td><%= contact.phone %></td>
                 <td>
-                  <button class="btn btn-primary btn-sm">Edit</button>
-                  <button class="btn btn-secondary btn-sm">Delete</button>
+                  <a
+                    href="/delete/contact/<%= contact.id %>"
+                    class="btn btn-danger btn-sm"
+                    >Delete</a
+                  >
+                  <a
+                    href="/dashboard?edit=<%= contact.id %>"
+                    class="btn btn-primary btn-sm"
+                    >Edit</a
+                  >
                 </td>
               </tr>
-              <% }); %>
+              <% } %> <% }); %>
             </tbody>
           </table>
         </div>

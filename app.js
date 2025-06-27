@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 app.use(session({
   secret: "yourSecretKey123",
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: false, 
   cookie: { maxAge: 1000 * 60 * 60 }
 }));
 
