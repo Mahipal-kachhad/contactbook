@@ -69,22 +69,18 @@ router.post("/add/user", (req, res) => {
 });
 
 router.get("/dashboard", isAuthenticated, (req, res) => {
-  const userData = {
-    name: req.session.user.name,
-  };
+  const name = req.session.user.name;
   const userid = req.session.user.id;
   const editingId = parseInt(req.query.edit);
-
-
   const query = "SELECT * FROM contacts where userid = ?";
   con.query(query, [userid], (err, contacts) => {
     if (err) return res.status(500).send("Database error");
     res.render("index", {
       isValid: true,
-      user: userData,
+      name, 
       contacts,
       username: req.session.user.username,
-      editingId: editingId || null
+      editingId: editingId || null,
     });
   });
 });
@@ -124,12 +120,17 @@ router.get("/delete/contact/:id", (req, res) => {
 router.post("/update/contact/:id", isAuthenticated, (req, res) => {
   const contactId = req.params.id;
   const { name, email = "", phone } = req.body;
-  const query = "UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ? AND userid = ?";
+  const query =
+    "UPDATE contacts SET name = ?, email = ?, phone = ? WHERE id = ? AND userid = ?";
 
-  con.query(query, [name, email, phone, contactId, req.session.user.id], (err) => {
-    if (err) return res.status(500).send("Error updating contact");
-    res.redirect("/dashboard");
-  });
+  con.query(
+    query,
+    [name, email, phone, contactId, req.session.user.id],
+    (err) => {
+      if (err) return res.status(500).send("Error updating contact");
+      res.redirect("/dashboard");
+    }
+  );
 });
 
 router.get("/account", isAuthenticated, (req, res) => {
@@ -142,7 +143,8 @@ router.post("/update-account", isAuthenticated, (req, res) => {
 
   let query, params;
   if (password) {
-    query = "UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE id = ?";
+    query =
+      "UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE id = ?";
     params = [name, email, phone, password, userId];
   } else {
     query = "UPDATE users SET name = ?, email = ?, phone = ? WHERE id = ?";
@@ -160,6 +162,5 @@ router.post("/update-account", isAuthenticated, (req, res) => {
     res.redirect("/account");
   });
 });
-
 
 module.exports = router;
